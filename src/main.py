@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 
 import numpy as np
+
 from scipy.linalg import svd
 
 from parseFile import loadFile, countWords
@@ -65,10 +66,10 @@ def makeMatrix(allWordCounts: dict) -> list:
 
 if __name__ == "__main__":
     testFiles = [
-        "testDocuments/test1.txt",
-        "testDocuments/test2.txt",
-        "testDocuments/test3.txt",
-        "testDocuments/test4.txt",
+        "Full-Stack-Project/src/testDocuments/test1.txt",
+        "Full-Stack-Project/src/testDocuments/test2.txt",
+        "Full-Stack-Project/src/testDocuments/test3.txt",
+        "Full-Stack-Project/src/testDocuments/test4.txt",
     ]
 
     allWordCounts = parseAllFiles(testFiles)

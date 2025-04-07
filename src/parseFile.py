@@ -1,14 +1,21 @@
-import os
+import os, json
 
 
-def loadFile(filePath: str) -> str:
+def loadFile(filePath: str, jsonType: bool = False) -> str:
     fullPath = os.path.join(os.getcwd(), filePath)
 
     with open(fullPath, "r") as file:
 
-        content = file.read()
+        if jsonType:
+            content = json.load(file)
+        else:
+            content = file.read()
 
     return content
+
+
+# TODO it works but the return type is just a string where maybe it can be a array of strings
+INGORELIST = loadFile("Full-Stack-Project/src/IGNORELIST.json")
 
 
 def countWords(content: str) -> dict:
@@ -19,16 +26,19 @@ def countWords(content: str) -> dict:
     for word in words:
 
         word = word.lower()
-        
+
         word = word.strip("-=_+<>.,!?()[]{};:\"'")
 
-        if word in wordCount:
+        if word not in INGORELIST:
+            if word in wordCount:
 
-            wordCount[word] += 1
+                wordCount[word] += 1
 
+            else:
+
+                wordCount[word] = 1
         else:
-
-            wordCount[word] = 1
+            continue
 
     return wordCount
 
