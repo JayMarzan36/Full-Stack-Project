@@ -15,7 +15,7 @@ def loadFile(filePath: str, jsonType: bool = False) -> str:
 
 
 # TODO it works but the return type is just a string where maybe it can be a array of strings
-INGORELIST = loadFile("Full-Stack-Project/src/IGNORELIST.json")
+INGORELIST = loadFile("Full-Stack-Project/Application/src/relations/IGNORELIST.json")
 
 
 def countWords(content: str) -> dict:
@@ -30,6 +30,7 @@ def countWords(content: str) -> dict:
         word = word.strip("-=_+<>.,!?()[]{};:\"'")
 
         if word not in INGORELIST:
+
             if word in wordCount:
 
                 wordCount[word] += 1
@@ -44,7 +45,7 @@ def countWords(content: str) -> dict:
 
 
 if __name__ == "__main__":
-    filePath = "testDocuments/test1.txt"
+    filePath = "Full-Stack-Project/Application/src/relations/testDocuments/test1.txt"
 
     if os.path.exists(filePath):
 

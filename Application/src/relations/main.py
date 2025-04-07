@@ -7,25 +7,41 @@ from scipy.linalg import svd
 from parseFile import loadFile, countWords
 
 
-def showTopWords(U, S, words, k, int=3, topN=5) -> None:
+def showTopWords(U, S, words, k, int=3, topN=5, printWords: bool = False) -> dict:
+    topWordsPerConcept = {}
+
     for i in range(k):
-        print(f"Top words for Concept {i+1}:")
+
+        if printWords:
+
+            print(f"Top words for Concept {i+1}:")
 
         concept_vector = U[:, i]
 
-        top_indices = np.argsort(np.abs(concept_vector))[::-1][:10]
+        top_indices = np.argsort(np.abs(concept_vector))[::-1][:topN]
 
-        for idx in top_indices:
-            print(f"{words[idx]} -> {concept_vector[idx]:.4f}")
-        print()
+        topWordsPerConcept[i + 1] = words[top_indices[0]]
+
+        if printWords:
+
+            for idx in top_indices:
+
+                print(f"{words[idx]} -> {concept_vector[idx]:.4f}")
+
+            print()
+
+    return topWordsPerConcept
 
 
 def getCosineSimilarity(v1: list, v2: list) -> float:
     dot_product = np.dot(v1, v2)
+
     norm_v1 = np.linalg.norm(v1)
+
     norm_v2 = np.linalg.norm(v2)
 
     if norm_v1 == 0 or norm_v2 == 0:
+
         return 0.0
 
     return dot_product / (norm_v1 * norm_v2)
@@ -39,17 +55,25 @@ def vis2d(matrix: list) -> None:
     plt.subplots_adjust(bottom=0.5, right=0.8, wspace=0.3, hspace=0.3)
 
     plt.yticks(range(len(words)), words)
+
     plt.xticks(range(len(testFiles)), testFiles)
+
     plt.colorbar()
+
     plt.show()
 
 
 def parseAllFiles(filePaths: list) -> dict:
     allWordCounts = {}
+
     for filePath in filePaths:
+
         content = loadFile(filePath)
+
         wordCount = countWords(content)
+
         allWordCounts[filePath] = wordCount
+
     return allWordCounts
 
 
@@ -57,19 +81,23 @@ def makeMatrix(allWordCounts: dict) -> list:
     allWords = sorted(set().union(*allWordCounts.values()))
 
     matrix = []
+
     for filePath, wordCount in allWordCounts.items():
+
         row = [wordCount.get(word, 0) for word in allWords]
+
         matrix.append(row)
 
     return matrix, list(allWords)
 
 
 if __name__ == "__main__":
+
     testFiles = [
-        "Full-Stack-Project/src/testDocuments/test1.txt",
-        "Full-Stack-Project/src/testDocuments/test2.txt",
-        "Full-Stack-Project/src/testDocuments/test3.txt",
-        "Full-Stack-Project/src/testDocuments/test4.txt",
+        "Full-Stack-Project/Application/src/relations//testDocuments/test1.txt",
+        "Full-Stack-Project/Application/src/relations//testDocuments/test2.txt",
+        "Full-Stack-Project/Application/src/relations//testDocuments/test3.txt",
+        "Full-Stack-Project/Application/src/relations//testDocuments/test4.txt",
     ]
 
     allWordCounts = parseAllFiles(testFiles)
@@ -85,13 +113,12 @@ if __name__ == "__main__":
     k = 3
 
     Sk = np.diag(S[:k])
+
     Vk = Vt[:k, :]
+
     Dk = np.dot(Sk, Vk).T
 
-    print("Dk shape:", Dk.shape)
-    print("testFiles length:", len(testFiles))
-
-    showTopWords(U, S, words, k=3)
+    topConceptWords = showTopWords(U, S, words, k=3, topN=3)
 
     # print(getCosineSimilarity(Dk[0], Dk[1]))  # Cosine similarity between first two documents
 
@@ -108,9 +135,11 @@ if __name__ == "__main__":
     DkNorm = Dk / np.linalg.norm(Dk, axis=1)[:, np.newaxis]
 
     scaleFactor = 0.1
+
     DkScaled = DkNorm * scaleFactor
 
     for idx, docVector in enumerate(DkScaled):
+
         ax.text(
             docVector[0],
             docVector[1],
@@ -133,11 +162,11 @@ if __name__ == "__main__":
         color="r",
     )
 
-    ax.set_xlabel("Concept 1")
+    ax.set_xlabel(f"Concept 1 ({topConceptWords.get(1)})")
 
-    ax.set_ylabel("Concept 2")
+    ax.set_ylabel(f"Concept 2 ({topConceptWords.get(2)})")
 
-    ax.set_zlabel("Concept 3")
+    ax.set_zlabel(f"Concept 3 ({topConceptWords.get(3)})")
 
     ax.set_title("Documents in Semantic Space")
 
