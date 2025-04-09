@@ -171,3 +171,6 @@ if __name__ == "__main__":
     ax.set_title("Documents in Semantic Space")
 
     plt.show()
+    
+    #TODO get the angle of the vectors to determine how close/similar the documents are.
+    #TODO turn this data into a usable and useful form for the application
