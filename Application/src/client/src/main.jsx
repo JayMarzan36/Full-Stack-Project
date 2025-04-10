@@ -1,10 +1,13 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
-import 'vite/modulepreload-polyfill'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+import './index.css';
+import 'vite/modulepreload-polyfill';
 
-import { createHashRouter, RouterProvider } from 'react-router'
+import { createHashRouter, RouterProvider } from 'react-router';
+
+import { NewNote } from './NewNote.jsx';
+import { ViewNotes } from './ViewNotes.jsx';
 
 
 //TODO go over canvas and notes to properly make more 'pages' for the single page application
@@ -17,9 +20,19 @@ import { createHashRouter, RouterProvider } from 'react-router'
 const router = createHashRouter([
   {
     path: "/",
-    element: <App/>,
+    element: <App />,
+    children: [
+      {
+        path: "/newnote",
+        element: <NewNote/>,
+      },
+      {
+        path: "/viewnote",
+        element: <ViewNotes/>,
+      }
+    ]
   }
-])
+]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
