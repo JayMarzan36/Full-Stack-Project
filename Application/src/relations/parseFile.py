@@ -15,7 +15,7 @@ def loadFile(filePath: str, jsonType: bool = False) -> str:
 
 
 # TODO it works but the return type is just a string where maybe it can be a array of strings
-INGORELIST = loadFile("Full-Stack-Project/Application/src/relations/IGNORELIST.json")
+INGORELIST = loadFile("Application/src/relations/IGNORELIST.json")
 
 
 def countWords(content: str) -> dict:

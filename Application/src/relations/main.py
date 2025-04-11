@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
+import math, json
+
 from scipy.linalg import svd
 
 from parseFile import loadFile, countWords
@@ -90,23 +92,12 @@ def makeMatrix(allWordCounts: dict) -> list:
 
     return matrix, list(allWords)
 
-
-if __name__ == "__main__":
-
-    testFiles = [
-        "Full-Stack-Project/Application/src/relations//testDocuments/test1.txt",
-        "Full-Stack-Project/Application/src/relations//testDocuments/test2.txt",
-        "Full-Stack-Project/Application/src/relations//testDocuments/test3.txt",
-        "Full-Stack-Project/Application/src/relations//testDocuments/test4.txt",
-    ]
-
-    allWordCounts = parseAllFiles(testFiles)
+def main(filesPathArray: str):
+    allWordCounts = parseAllFiles(filesPathArray)
 
     matrix, words = makeMatrix(allWordCounts)
 
     matrix = np.array(matrix).T
-
-    # vis2d(matrix)
 
     U, S, Vt = svd(matrix, full_matrices=False)
 
@@ -120,12 +111,6 @@ if __name__ == "__main__":
 
     topConceptWords = showTopWords(U, S, words, k=3, topN=3)
 
-    # print(getCosineSimilarity(Dk[0], Dk[1]))  # Cosine similarity between first two documents
-
-    # print(Sk, end="\n")  # Term vector space
-    # print(Vk, end="\n")  # Document vector space
-    # print(Dk, end="\n")  # Singular values
-
     origin = np.zeros((3, 3))
 
     fig = plt.figure(figsize=(8, 6))
@@ -138,39 +123,89 @@ if __name__ == "__main__":
 
     DkScaled = DkNorm * scaleFactor
 
+    docsAndClosest = {}
+
     for idx, docVector in enumerate(DkScaled):
-
-        ax.text(
-            docVector[0],
-            docVector[1],
-            docVector[2],
-            testFiles[idx],
-            size=10,
-            zorder=1,
-            color="k",
+        vectorComponentsAdded = (
+            docVector[0] ** 2 + docVector[1] ** 2 + docVector[2] ** 2
         )
+        magOfVector = math.sqrt(vectorComponentsAdded)
 
-    origin = np.zeros((Dk.shape[0], 3))
+        closestAngle = 10000000000000000
+        closestDoc = "None"
 
-    ax.quiver(
-        origin[:, 0],
-        origin[:, 1],
-        origin[:, 2],
-        DkScaled[:, 0],
-        DkScaled[:, 1],
-        DkScaled[:, 2],
-        color="r",
-    )
+        for otherIDX, otherDocVector in enumerate(DkScaled):
+            if testFiles[idx] == testFiles[otherIDX]:
+                pass
+            else:
 
-    ax.set_xlabel(f"Concept 1 ({topConceptWords.get(1)})")
+                otherVectorComponentsAdded = (
+                    otherDocVector[0] ** 2
+                    + otherDocVector[1] ** 2
+                    + otherDocVector[2] ** 2
+                )
+                otherMagOfVector = math.sqrt(vectorComponentsAdded)
 
-    ax.set_ylabel(f"Concept 2 ({topConceptWords.get(2)})")
+                currAngle = math.acos(
+                    (
+                        (
+                            docVector[0] * otherDocVector[0]
+                            + docVector[1] * otherDocVector[1]
+                            + docVector[2] * otherDocVector[2]
+                        )
+                        / (magOfVector * otherMagOfVector)
+                    )
+                )
 
-    ax.set_zlabel(f"Concept 3 ({topConceptWords.get(3)})")
+                if currAngle < closestAngle:
+                    closestAngle = currAngle
+                    closestDoc = testFiles[otherIDX]
 
-    ax.set_title("Documents in Semantic Space")
-
-    plt.show()
+        print(f"Closest doc to {testFiles[idx]} is {closestDoc}")
+        docsAndClosest[testFiles[idx]] = closestDoc
     
-    #TODO get the angle of the vectors to determine how close/similar the documents are.
-    #TODO turn this data into a usable and useful form for the application
+    return docsAndClosest
+
+
+if __name__ == "__main__":
+
+    testFiles = [
+        "Application/src/relations/testDocuments/test1.txt",
+        "Application/src/relations/testDocuments/test2.txt",
+        "Application/src/relations/testDocuments/test3.txt",
+        "Application/src/relations/testDocuments/test4.txt",
+    ]
+
+    main(testFiles)
+
+    #     ax.text(
+    #         docVector[0],
+    #         docVector[1],
+    #         docVector[2],
+    #         testFiles[idx],
+    #         size=10,
+    #         zorder=1,
+    #         color="k",
+    #     )
+
+    # origin = np.zeros((Dk.shape[0], 3))
+
+    # ax.quiver(
+    #     origin[:, 0],
+    #     origin[:, 1],
+    #     origin[:, 2],
+    #     DkScaled[:, 0],
+    #     DkScaled[:, 1],
+    #     DkScaled[:, 2],
+    #     color="r",
+    # )
+
+    # ax.set_xlabel(f"Concept 1 ({topConceptWords.get(1)})")
+
+    # ax.set_ylabel(f"Concept 2 ({topConceptWords.get(2)})")
+
+    # ax.set_zlabel(f"Concept 3 ({topConceptWords.get(3)})")
+
+    # ax.set_title("Documents in Semantic Space")
+
+    # plt.show()    
